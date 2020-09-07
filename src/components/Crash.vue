@@ -4,7 +4,7 @@
     <section v-if="isCrashInfo">
         <p class="title">Crash List</p>
         <b-table
-        :data="tmp_data"
+        :data="crash_list"
         striped
         narrowed
         bordered>
@@ -98,6 +98,8 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   data: function () {
     return {
@@ -113,6 +115,7 @@ export default {
           "url3",
           "url4"
       ],
+      crash_list:[],
       tmp_data:[
         {
             name : "Testcase2",
@@ -142,7 +145,21 @@ export default {
       loadCrashInfo: function(_testname){
           this.isCrashInfo = false
           console.log(_testname)
+      },
+      getCrashList: function(){
+          axios.get("http://112.187.174.142:3000/" + "crashlist").then(
+            (response) => {
+            this.crash_list = response.data
+            console.log(this.crash_list)
+            },
+            (error) => {
+            console.log(error);
+            }
+        );
       }
+  },
+  mounted: function () {
+      this.getCrashList()
   }
 
 }
