@@ -11,33 +11,19 @@
             <b-table-column 
             field="name"
             label="name"
+            width="50%"
             v-slot="props">
             <a @click="loadCrashInfo(props.row.name)">{{props.row.name}}</a>
             </b-table-column>
             <b-table-column 
-            field="crash_input"
-            label="crash_input"
+            field="uuid"
+            label="uuid"
+            width="50%"
             v-slot="props">
-            {{props.row.crash_input}}
+            {{props.row.uuid}}
             </b-table-column>
-            <b-table-column 
-            field="crash_time"
-            label="crash_time"
-            v-slot="props">
-            {{props.row.crash_time}}
-            </b-table-column>
-            <b-table-column 
-            field="crash_taint"
-            label="crash_taint"
-            v-slot="props">
-            {{props.row.crash_taint}}
-            </b-table-column>
-            <b-table-column 
-            field="crash_cfg"
-            label="crash_cfg"
-            v-slot="props">
-            {{props.row.crash_cfg}}
-            </b-table-column>
+            
+            
         </b-table>
     </section>
     <section v-else>
