@@ -13,7 +13,7 @@
             label="name"
             width="50%"
             v-slot="props">
-            <a @click="loadCrashInfo(props.row.name)">{{props.row.name}}</a>
+            <a @click="loadCrashInfo(props.row.uuid)">{{props.row.name}}</a>
             </b-table-column>
             <b-table-column 
             field="uuid"
@@ -40,7 +40,7 @@
             </div>
         </nav>
         <b-field horizontal label="Crash Title">
-            <p>{{crash_title}}</p>
+            <p>{{currntCrashData.name}}</p>
         </b-field>
         <b-field horizontal label="Reported Date">
             <p>{{reported_date}}</p>
@@ -55,27 +55,23 @@
             <p>{{crash_log}}</p>
         </b-field>
         <b-field horizontal label="Input data that caused crash in target program">
-            <b-input placeholder="Search...">
-            </b-input>
-            <b-button class="button is-primary" label="Download" @click="downloadFile()">
+            <p>{{currntCrashData.crash_input}}</p>
+            <b-button class="button is-primary is-small" label="Download" @click="downloadFile(currntCrashData.uuid,currntCrashData.crash_input)">
             </b-button>
         </b-field>
         <b-field horizontal label="Crash occurrence time in target program" >
-            <b-input placeholder="Search...">
-            </b-input>
-            <b-button class="button is-primary" label="Download" @click="downloadFile()">
+            <p>{{currntCrashData.crash_time}}</p>
+            <b-button class="button is-primary is-small" label="Download" @click="downloadFile(currntCrashData.uuid,currntCrashData.crash_time)">
             </b-button>
         </b-field>
         <b-field horizontal label="Taint analysis result of target program">
-            <b-input placeholder="Search...">
-            </b-input>
-            <b-button class="button is-primary" label="Download" @click="downloadFile()">
+            <p>{{currntCrashData.crash_taint}}</p>
+            <b-button class="button is-primary is-small" label="Download" @click="downloadFile(currntCrashData.uuid,currntCrashData.crash_taint)">
             </b-button>
         </b-field>
         <b-field horizontal label="Control Flow Graph of target program">
-            <b-input placeholder="Search...">
-            </b-input>
-            <b-button class="button is-primary" label="Download" @click="downloadFile()">
+            <p>{{currntCrashData.crash_cfg}}</p>
+            <b-button class="button is-primary is-small" label="Download" @click="downloadFile(currntCrashData.uuid,currntCrashData.crash_cfg)">
             </b-button>
 
         </b-field>
@@ -90,6 +86,7 @@ export default {
   data: function () {
     return {
       isCrashInfo: true,
+      currntCrashData:{},
       crash_title: "Test version14",
       reported_date:"Aug. 24, 2020, 2:26 a.m. (1 week, 6 days ago)",
       target:"/home/soonhong/driller",
@@ -123,14 +120,32 @@ export default {
     }
   },
   methods:{
-      downloadFile: function(_filename){
-        var link = document.createElement("a");
-        link.href = _filename
-        link.click();
+      downloadFile: function(_uuid,_filename){
+        //var url = "http://112.187.174.142:3000/download/"+this.currntTestName
+        // var link = document.createElement("a");
+        // link.href = "http://112.187.174.142:3000/download/"+_filename
+        // link.click();
+        axios.get("http://112.187.174.142:3000/download/"+_uuid+"/"+_filename, { responseType: 'blob' })
+        .then(response => {
+            const blob = new Blob([response.data], { type: 'application' })
+            const link = document.createElement('a')
+            link.href = URL.createObjectURL(blob)
+            link.download = _filename
+            link.click()
+            URL.revokeObjectURL(link.href)
+        })
       },
-      loadCrashInfo: function(_testname){
+      loadCrashInfo: function(_uuid){
           this.isCrashInfo = false
-          console.log(_testname)
+          axios.get("http://112.187.174.142:3000/" + "crashinfo/"+_uuid).then(
+            (response) => {
+            
+            this.currntCrashData = response.data
+            console.log(this.currntCrashData)
+            },
+            (error) => {
+            console.log(error);
+            });
       },
       getCrashList: function(){
           axios.get("http://112.187.174.142:3000/" + "crashlist").then(
@@ -142,7 +157,7 @@ export default {
             console.log(error);
             }
         );
-      }
+      },
   },
   mounted: function () {
       this.getCrashList()
